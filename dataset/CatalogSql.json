@@ -1,0 +1,179 @@
+{
+	"name": "CatalogSql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabaseLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlMITable",
+		"schema": [
+			{
+				"name": "CatalogId",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "SupplierId",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "CatalogName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PODeliveryMethodId",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "PODeliveryEmailId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PODeliveryFax",
+				"type": "nvarchar"
+			},
+			{
+				"name": "SupplierTerms",
+				"type": "nvarchar"
+			},
+			{
+				"name": "IsPunchOutCatalog",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "CreatedDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "CreatedBy",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "LastUpdatedDate",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			},
+			{
+				"name": "LastUpdatedBy",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "ImageFileName",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PunchOutIdentifier",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PunchOutUrl",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PunchOutOrderUrl",
+				"type": "nvarchar"
+			},
+			{
+				"name": "IntegrationDomain",
+				"type": "nvarchar"
+			},
+			{
+				"name": "IntegrationIdentity",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ESMSharedSecret",
+				"type": "nvarchar"
+			},
+			{
+				"name": "CatalogCategoryId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "PunchOutLevel",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AllowNonCatalogItems",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "CurrencyId",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "IsCVVRequired",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "IntegrationNotes",
+				"type": "nvarchar"
+			},
+			{
+				"name": "AllowChangeOrder",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "ChangeOrderEmail",
+				"type": "nvarchar"
+			},
+			{
+				"name": "IsProxyCatalog",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "ParentCatalogId",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "IsBasicAuthentication",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "IsMultiSupplierCatalog",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "IsStoreroomCatalog",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "IsReplenishmentCatalog",
+				"type": "float",
+				"precision": 15
+			},
+			{
+				"name": "EventId",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ExcludeFromPOBilling",
+				"type": "float",
+				"precision": 15
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Catalog"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

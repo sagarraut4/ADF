@@ -1,0 +1,164 @@
+{
+	"name": "CatalogExcel",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureStorageLinkedService",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Excel",
+		"typeProperties": {
+			"sheetName": "Sheet1",
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "catalog 1.xlsx",
+				"folderPath": "input",
+				"container": "adfdigipod"
+			},
+			"firstRowAsHeader": true
+		},
+		"schema": [
+			{
+				"name": "CatalogId",
+				"type": "String"
+			},
+			{
+				"name": "SupplierId",
+				"type": "String"
+			},
+			{
+				"name": "CatalogName",
+				"type": "String"
+			},
+			{
+				"name": "PODeliveryMethodId",
+				"type": "String"
+			},
+			{
+				"name": "PODeliveryEmailId",
+				"type": "String"
+			},
+			{
+				"name": "PODeliveryFax",
+				"type": "String"
+			},
+			{
+				"name": "SupplierTerms",
+				"type": "String"
+			},
+			{
+				"name": "IsPunchOutCatalog",
+				"type": "String"
+			},
+			{
+				"name": "CreatedDate",
+				"type": "String"
+			},
+			{
+				"name": "CreatedBy",
+				"type": "String"
+			},
+			{
+				"name": "LastUpdatedDate",
+				"type": "String"
+			},
+			{
+				"name": "LastUpdatedBy",
+				"type": "String"
+			},
+			{
+				"name": "ImageFileName",
+				"type": "String"
+			},
+			{
+				"name": "PunchOutIdentifier",
+				"type": "String"
+			},
+			{
+				"name": "PunchOutUrl",
+				"type": "String"
+			},
+			{
+				"name": "PunchOutOrderUrl",
+				"type": "String"
+			},
+			{
+				"name": "IntegrationDomain",
+				"type": "String"
+			},
+			{
+				"name": "IntegrationIdentity",
+				"type": "String"
+			},
+			{
+				"name": "ESMSharedSecret",
+				"type": "String"
+			},
+			{
+				"name": "CatalogCategoryId",
+				"type": "String"
+			},
+			{
+				"name": "PunchOutLevel",
+				"type": "String"
+			},
+			{
+				"name": "AllowNonCatalogItems",
+				"type": "String"
+			},
+			{
+				"name": "CurrencyId",
+				"type": "String"
+			},
+			{
+				"name": "IsCVVRequired",
+				"type": "String"
+			},
+			{
+				"name": "IntegrationNotes",
+				"type": "String"
+			},
+			{
+				"name": "AllowChangeOrder",
+				"type": "String"
+			},
+			{
+				"name": "ChangeOrderEmail",
+				"type": "String"
+			},
+			{
+				"name": "IsProxyCatalog",
+				"type": "String"
+			},
+			{
+				"name": "ParentCatalogId",
+				"type": "String"
+			},
+			{
+				"name": "IsBasicAuthentication",
+				"type": "String"
+			},
+			{
+				"name": "IsMultiSupplierCatalog",
+				"type": "String"
+			},
+			{
+				"name": "IsStoreroomCatalog",
+				"type": "String"
+			},
+			{
+				"name": "IsReplenishmentCatalog",
+				"type": "String"
+			},
+			{
+				"name": "EventId",
+				"type": "String"
+			},
+			{
+				"name": "ExcludeFromPOBilling",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
