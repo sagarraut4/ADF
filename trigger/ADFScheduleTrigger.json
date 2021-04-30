@@ -1,0 +1,17 @@
+{
+	"name": "ADFScheduleTrigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 24,
+				"startTime": "2021-05-01T00:00:00",
+				"timeZone": "India Standard Time"
+			}
+		}
+	}
+}
