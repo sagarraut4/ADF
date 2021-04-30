@@ -124,7 +124,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataset": {
-						"referenceName": "ds_input",
+						"referenceName": "DeleteDataser",
 						"type": "DatasetReference"
 					},
 					"enableLogging": false,
