@@ -14,9 +14,6 @@
 		"digipod Sql Linked_connectionString": {
 			"value": ""
 		},
-		"trigger2_properties_typeProperties_scope": {
-			"value": "/subscriptions/e06040b7-5b4d-471c-8385-e00160deeb3d/resourceGroups/AdfResource/providers/Microsoft.Storage/storageAccounts/adfstoragedigipod"
-		},
 		"containerUri": {
 			"value": ""
 		},

@@ -18,10 +18,6 @@
 		"digipod Sql Linked_connectionString": {
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'digipod Sql Linked'"
-		},
-		"trigger2_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/e06040b7-5b4d-471c-8385-e00160deeb3d/resourceGroups/AdfResource/providers/Microsoft.Storage/storageAccounts/adfstoragedigipod"
 		}
 	},
 	"variables": {
@@ -698,37 +694,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/CatalogParallelDataCopy')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trigger2')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "CatalogDataFactoryPipeLine",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
-				"type": "BlobEventsTrigger",
-				"typeProperties": {
-					"blobPathBeginsWith": "/adfdigipod/blobs/",
-					"blobPathEndsWith": ".xlsx",
-					"ignoreEmptyBlobs": true,
-					"scope": "[parameters('trigger2_properties_typeProperties_scope')]",
-					"events": [
-						"Microsoft.Storage.BlobCreated"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/CatalogDataFactoryPipeLine')]"
 			]
 		}
 	]

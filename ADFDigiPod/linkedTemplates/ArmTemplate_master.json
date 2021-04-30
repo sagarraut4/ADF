@@ -19,10 +19,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'digipod Sql Linked'"
 		},
-		"trigger2_properties_typeProperties_scope": {
-			"type": "string",
-			"defaultValue": "/subscriptions/e06040b7-5b4d-471c-8385-e00160deeb3d/resourceGroups/AdfResource/providers/Microsoft.Storage/storageAccounts/adfstoragedigipod"
-		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -58,9 +54,6 @@
 					},
 					"digipod Sql Linked_connectionString": {
 						"value": "[parameters('digipod Sql Linked_connectionString')]"
-					},
-					"trigger2_properties_typeProperties_scope": {
-						"value": "[parameters('trigger2_properties_typeProperties_scope')]"
 					}
 				}
 			},
