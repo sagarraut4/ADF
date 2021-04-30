@@ -1,0 +1,735 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "ADFDigiPod"
+		},
+		"AzureSqlDatabaseLinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabaseLinkedService'"
+		},
+		"AzureStorageLinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureStorageLinkedService'"
+		},
+		"digipod Sql Linked_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'digipod Sql Linked'"
+		},
+		"trigger2_properties_typeProperties_scope": {
+			"type": "string",
+			"defaultValue": "/subscriptions/e06040b7-5b4d-471c-8385-e00160deeb3d/resourceGroups/AdfResource/providers/Microsoft.Storage/storageAccounts/adfstoragedigipod"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/CatalogDataFactoryPipeLine')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data from blob to sql",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:10:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "ExcelSource",
+								"storeSettings": {
+									"type": "AzureBlobStorageReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								}
+							},
+							"sink": {
+								"type": "SqlMISink"
+							},
+							"enableStaging": false,
+							"parallelCopies": 8,
+							"enableSkipIncompatibleRow": true,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "CatalogExcel",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "CatalogSql",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"annotations": [],
+				"lastPublishTime": "2021-04-29T07:32:20Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/CatalogExcel')]",
+				"[concat(variables('factoryId'), '/datasets/CatalogSql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CatalogParallelDataCopy')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "GetCatalogMetaData",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_input",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					},
+					{
+						"name": "Catalog",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "GetCatalogMetaData",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('GetCatalogMetaData').output.ChildItems",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy data1",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "7.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "ExcelSource",
+											"storeSettings": {
+												"type": "AzureBlobStorageReadSettings",
+												"recursive": true,
+												"wildcardFolderPath": "input",
+												"wildcardFileName": {
+													"value": "@item().name",
+													"type": "Expression"
+												},
+												"enablePartitionDiscovery": false
+											}
+										},
+										"sink": {
+											"type": "SqlMISink"
+										},
+										"enableStaging": false,
+										"parallelCopies": 4,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_input",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "CatalogSql",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									]
+								}
+							]
+						}
+					},
+					{
+						"name": "DeleteBlob",
+						"type": "Delete",
+						"dependsOn": [
+							{
+								"activity": "Catalog",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "7.00:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_input",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"logStorageSettings": {
+								"linkedServiceName": {
+									"referenceName": "AzureStorageLinkedService",
+									"type": "LinkedServiceReference"
+								},
+								"path": "adfdigipod/input"
+							},
+							"enableLogging": true,
+							"storeSettings": {
+								"type": "AzureBlobStorageReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							}
+						}
+					}
+				],
+				"annotations": [],
+				"lastPublishTime": "2021-04-29T12:39:46Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_input')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureStorageLinkedService')]",
+				"[concat(variables('factoryId'), '/datasets/CatalogSql')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CatalogExcel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureStorageLinkedService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Sheet1",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "catalog 1.xlsx",
+						"folderPath": "input",
+						"container": "adfdigipod"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": [
+					{
+						"name": "CatalogId",
+						"type": "String"
+					},
+					{
+						"name": "SupplierId",
+						"type": "String"
+					},
+					{
+						"name": "CatalogName",
+						"type": "String"
+					},
+					{
+						"name": "PODeliveryMethodId",
+						"type": "String"
+					},
+					{
+						"name": "PODeliveryEmailId",
+						"type": "String"
+					},
+					{
+						"name": "PODeliveryFax",
+						"type": "String"
+					},
+					{
+						"name": "SupplierTerms",
+						"type": "String"
+					},
+					{
+						"name": "IsPunchOutCatalog",
+						"type": "String"
+					},
+					{
+						"name": "CreatedDate",
+						"type": "String"
+					},
+					{
+						"name": "CreatedBy",
+						"type": "String"
+					},
+					{
+						"name": "LastUpdatedDate",
+						"type": "String"
+					},
+					{
+						"name": "LastUpdatedBy",
+						"type": "String"
+					},
+					{
+						"name": "ImageFileName",
+						"type": "String"
+					},
+					{
+						"name": "PunchOutIdentifier",
+						"type": "String"
+					},
+					{
+						"name": "PunchOutUrl",
+						"type": "String"
+					},
+					{
+						"name": "PunchOutOrderUrl",
+						"type": "String"
+					},
+					{
+						"name": "IntegrationDomain",
+						"type": "String"
+					},
+					{
+						"name": "IntegrationIdentity",
+						"type": "String"
+					},
+					{
+						"name": "ESMSharedSecret",
+						"type": "String"
+					},
+					{
+						"name": "CatalogCategoryId",
+						"type": "String"
+					},
+					{
+						"name": "PunchOutLevel",
+						"type": "String"
+					},
+					{
+						"name": "AllowNonCatalogItems",
+						"type": "String"
+					},
+					{
+						"name": "CurrencyId",
+						"type": "String"
+					},
+					{
+						"name": "IsCVVRequired",
+						"type": "String"
+					},
+					{
+						"name": "IntegrationNotes",
+						"type": "String"
+					},
+					{
+						"name": "AllowChangeOrder",
+						"type": "String"
+					},
+					{
+						"name": "ChangeOrderEmail",
+						"type": "String"
+					},
+					{
+						"name": "IsProxyCatalog",
+						"type": "String"
+					},
+					{
+						"name": "ParentCatalogId",
+						"type": "String"
+					},
+					{
+						"name": "IsBasicAuthentication",
+						"type": "String"
+					},
+					{
+						"name": "IsMultiSupplierCatalog",
+						"type": "String"
+					},
+					{
+						"name": "IsStoreroomCatalog",
+						"type": "String"
+					},
+					{
+						"name": "IsReplenishmentCatalog",
+						"type": "String"
+					},
+					{
+						"name": "EventId",
+						"type": "String"
+					},
+					{
+						"name": "ExcludeFromPOBilling",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureStorageLinkedService')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CatalogSql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseLinkedService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlMITable",
+				"schema": [
+					{
+						"name": "CatalogId",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "SupplierId",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "CatalogName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PODeliveryMethodId",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "PODeliveryEmailId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PODeliveryFax",
+						"type": "nvarchar"
+					},
+					{
+						"name": "SupplierTerms",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IsPunchOutCatalog",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "CreatedDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "CreatedBy",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "LastUpdatedDate",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "LastUpdatedBy",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ImageFileName",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PunchOutIdentifier",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PunchOutUrl",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PunchOutOrderUrl",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IntegrationDomain",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IntegrationIdentity",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ESMSharedSecret",
+						"type": "nvarchar"
+					},
+					{
+						"name": "CatalogCategoryId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "PunchOutLevel",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AllowNonCatalogItems",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "CurrencyId",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "IsCVVRequired",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "IntegrationNotes",
+						"type": "nvarchar"
+					},
+					{
+						"name": "AllowChangeOrder",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ChangeOrderEmail",
+						"type": "nvarchar"
+					},
+					{
+						"name": "IsProxyCatalog",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "ParentCatalogId",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "IsBasicAuthentication",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "IsMultiSupplierCatalog",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "IsStoreroomCatalog",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "IsReplenishmentCatalog",
+						"type": "float",
+						"precision": 15
+					},
+					{
+						"name": "EventId",
+						"type": "nvarchar"
+					},
+					{
+						"name": "ExcludeFromPOBilling",
+						"type": "float",
+						"precision": 15
+					}
+				],
+				"typeProperties": {
+					"schema": "dbo",
+					"table": "Catalog"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabaseLinkedService')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_input')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureStorageLinkedService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Excel",
+				"typeProperties": {
+					"sheetName": "Sheet1",
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "input",
+						"container": "adfdigipod"
+					},
+					"firstRowAsHeader": true
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureStorageLinkedService')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabaseLinkedService')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlMI",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabaseLinkedService_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureStorageLinkedService')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureStorageLinkedService_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/digipod Sql Linked')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "SqlServer",
+				"typeProperties": {
+					"connectionString": "[parameters('digipod Sql Linked_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ADFScheduleTrigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "CatalogParallelDataCopy",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "ScheduleTrigger",
+				"typeProperties": {
+					"recurrence": {
+						"frequency": "Minute",
+						"interval": 3,
+						"startTime": "2021-04-30T13:10:00",
+						"timeZone": "India Standard Time"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/CatalogParallelDataCopy')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trigger2')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipelines": [
+					{
+						"pipelineReference": {
+							"referenceName": "CatalogDataFactoryPipeLine",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					}
+				],
+				"type": "BlobEventsTrigger",
+				"typeProperties": {
+					"blobPathBeginsWith": "/adfdigipod/blobs/",
+					"blobPathEndsWith": ".xlsx",
+					"ignoreEmptyBlobs": true,
+					"scope": "[parameters('trigger2_properties_typeProperties_scope')]",
+					"events": [
+						"Microsoft.Storage.BlobCreated"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/CatalogDataFactoryPipeLine')]"
+			]
+		}
+	]
+}
