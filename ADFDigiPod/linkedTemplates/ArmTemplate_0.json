@@ -641,14 +641,7 @@
 								"type": "DatasetReference",
 								"parameters": {}
 							},
-							"logStorageSettings": {
-								"linkedServiceName": {
-									"referenceName": "AzureStorageLinkedService",
-									"type": "LinkedServiceReference"
-								},
-								"path": "adfdigipod/input"
-							},
-							"enableLogging": true,
+							"enableLogging": false,
 							"storeSettings": {
 								"type": "AzureBlobStorageReadSettings",
 								"recursive": true,
