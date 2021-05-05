@@ -221,7 +221,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
-								"referenceName": "ds_input",
+								"referenceName": "DeleteDataser",
 								"type": "DatasetReference",
 								"parameters": {}
 							},
@@ -239,7 +239,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_input')]",
-				"[concat(variables('factoryId'), '/linkedServices/AzureStorageLinkedService')]",
+				"[concat(variables('factoryId'), '/datasets/DeleteDataser')]",
 				"[concat(variables('factoryId'), '/datasets/CatalogSql')]"
 			]
 		},
@@ -595,6 +595,29 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/DeleteDataser')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureStorageLinkedService",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"folderPath": "input",
+						"container": "adfdigipod"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureStorageLinkedService')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_input')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -665,29 +688,19 @@
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Started",
-				"pipelines": [
-					{
-						"pipelineReference": {
-							"referenceName": "CatalogParallelDataCopy",
-							"type": "PipelineReference"
-						},
-						"parameters": {}
-					}
-				],
+				"runtimeState": "Stopped",
+				"pipelines": [],
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
-						"frequency": "Minute",
-						"interval": 3,
-						"startTime": "2021-04-30T13:10:00",
+						"frequency": "Hour",
+						"interval": 24,
+						"startTime": "2021-05-01T00:00:00",
 						"timeZone": "India Standard Time"
 					}
 				}
 			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/CatalogParallelDataCopy')]"
-			]
+			"dependsOn": []
 		}
 	]
 }
